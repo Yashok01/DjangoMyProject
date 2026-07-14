@@ -1,0 +1,380 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Orbit</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #f6fff9;
+            background:
+                radial-gradient(circle at 18% 20%, rgba(62, 228, 154, .22), transparent 28%),
+                radial-gradient(circle at 84% 18%, rgba(92, 231, 255, .16), transparent 30%),
+                linear-gradient(135deg, #05080b 0%, #071416 52%, #05080b 100%);
+            font-family: Inter, Arial, sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle, rgba(121, 255, 209, .55) 1px, transparent 1px),
+                linear-gradient(rgba(121, 255, 209, .04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(121, 255, 209, .04) 1px, transparent 1px);
+            background-size: 90px 90px, 64px 64px, 64px 64px;
+            opacity: .45;
+            animation: moveGrid 18s linear infinite;
+        }
+
+        .page {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 28px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .logo-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(121, 255, 209, .36);
+            border-radius: 50%;
+            color: #79ffd1;
+            box-shadow: 0 0 34px rgba(62, 228, 154, .24);
+        }
+
+        .logo span span {
+            color: #3ee49a;
+        }
+
+        nav {
+            display: flex;
+            gap: 26px;
+        }
+
+        nav a {
+            color: #cde3dd;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color .2s ease;
+        }
+
+        nav a:hover {
+            color: #79ffd1;
+        }
+
+        .hero {
+            min-height: calc(100vh - 98px);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 540px);
+            align-items: center;
+            gap: 44px;
+            padding: 44px 0 78px;
+        }
+
+        .hero-text {
+            animation: fadeUp .8s ease both;
+        }
+
+        h1 {
+            margin: 0;
+            max-width: 690px;
+            font-size: clamp(42px, 6vw, 82px);
+            line-height: .98;
+            letter-spacing: 0;
+        }
+
+        h1 strong {
+            color: #3ee49a;
+        }
+
+        .lead {
+            max-width: 590px;
+            margin: 26px 0 0;
+            color: #c6d7d2;
+            font-size: clamp(17px, 2vw, 21px);
+            line-height: 1.65;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 34px;
+        }
+
+        .btn {
+            min-height: 54px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 24px;
+            border: 1px solid rgba(121, 255, 209, .32);
+            border-radius: 8px;
+            color: #f6fff9;
+            background: linear-gradient(135deg, #27bf78, #17885f);
+            box-shadow: 0 18px 42px rgba(39, 191, 120, .25);
+            text-decoration: none;
+            font-weight: 800;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 22px 52px rgba(39, 191, 120, .34);
+        }
+
+        .btn.secondary {
+            background: rgba(6, 15, 19, .62);
+            box-shadow: none;
+        }
+
+        .terminal {
+            width: min(440px, 100%);
+            margin-top: 34px;
+            padding: 18px 20px;
+            border: 1px solid rgba(121, 255, 209, .18);
+            border-radius: 8px;
+            background: rgba(2, 8, 10, .72);
+            color: #eafff7;
+            font-family: Consolas, monospace;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+        }
+
+        .terminal span {
+            color: #3ee49a;
+        }
+
+        .art {
+            position: relative;
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .art::before {
+            content: "";
+            position: absolute;
+            inset: 14% 8%;
+            border: 1px solid rgba(121, 255, 209, .32);
+            border-radius: 50%;
+            transform: rotate(-16deg);
+            box-shadow: 0 0 42px rgba(62, 228, 154, .18);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .art img {
+            width: 100%;
+            display: block;
+            border-radius: 8px;
+            mix-blend-mode: screen;
+            filter: drop-shadow(0 28px 70px rgba(0,0,0,.48));
+            -webkit-mask-image: radial-gradient(ellipse at 58% 48%, #000 0 46%, rgba(0,0,0,.72) 62%, transparent 82%);
+            mask-image: radial-gradient(ellipse at 58% 48%, #000 0 46%, rgba(0,0,0,.72) 62%, transparent 82%);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            padding-bottom: 56px;
+        }
+
+        .card {
+            padding: 24px;
+            border: 1px solid rgba(121, 255, 209, .18);
+            border-radius: 8px;
+            background: rgba(7, 18, 22, .72);
+            box-shadow: 0 22px 70px rgba(0,0,0,.28);
+            transition: transform .2s ease, border-color .2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(121, 255, 209, .42);
+        }
+
+        .card b {
+            color: #5ce7ff;
+            font-size: 24px;
+        }
+
+        .card h2 {
+            margin: 18px 0 10px;
+            font-size: 22px;
+        }
+
+        .card p {
+            margin: 0;
+            color: #aec3bd;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: .35;
+                transform: rotate(-16deg) scale(.96);
+            }
+            50% {
+                opacity: .85;
+                transform: rotate(-16deg) scale(1.03);
+            }
+        }
+
+        @keyframes moveGrid {
+            from {
+                background-position: 0 0, 0 0, 0 0;
+            }
+            to {
+                background-position: 90px 90px, 64px 64px, 64px 64px;
+            }
+        }
+
+        @media (max-width: 860px) {
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                min-height: auto;
+                padding-top: 36px;
+            }
+
+            .art {
+                max-width: 520px;
+                margin: 0 auto;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            nav {
+                width: 100%;
+                justify-content: space-between;
+                gap: 12px;
+                font-size: 14px;
+            }
+
+            .actions {
+                display: grid;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .art {
+                opacity: .72;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header>
+            <div class="logo">
+                <div class="logo-mark">◌</div>
+                <span>Django <span>Orbit</span></span>
+            </div>
+            <nav>
+                <a href="#course">Курс</a>
+                <a href="#practice">Практика</a>
+                <a href="#start">Старт</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero" id="start">
+                <div class="hero-text">
+                    <h1>Делай сайты <strong>красиво</strong> и уверенно</h1>
+                    <p class="lead">Простой учебный проект на Django с яркой графикой, плавной анимацией и аккуратной адаптивной версткой.</p>
+                    <div class="actions">
+                        <a class="btn" href="#course">Смотреть курс</a>
+                        <a class="btn secondary" href="#practice">Открыть практику</a>
+                    </div>
+                    <div class="terminal"><span>$</span> python manage.py runserver</div>
+                </div>
+
+                <div class="art" aria-hidden="true">
+                    <img src="{% static 'main/img/django-orbit-hero.png' %}" alt="">
+                </div>
+            </section>
+
+            <section class="cards" id="course">
+                <article class="card">
+                    <b>01</b>
+                    <h2>Шаблоны</h2>
+                    <p>Создаем красивую HTML-страницу и подключаем ее через Django views.</p>
+                </article>
+                <article class="card" id="practice">
+                    <b>02</b>
+                    <h2>Стили</h2>
+                    <p>Добавляем цвета, сетку, кнопки, карточки и аккуратную мобильную версию.</p>
+                </article>
+                <article class="card">
+                    <b>03</b>
+                    <h2>Анимация</h2>
+                    <p>Делаем фон живым, графику плавающей, а интерфейс приятным.</p>
+                </article>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
